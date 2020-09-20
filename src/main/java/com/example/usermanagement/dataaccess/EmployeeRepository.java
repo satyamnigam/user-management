@@ -2,12 +2,16 @@ package com.example.usermanagement.dataaccess;
 
 import com.example.usermanagement.entities.EmployeeEntity;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
+@Transactional
 public class EmployeeRepository extends AbstractRepository {
 
     public EmployeeEntity getEmployee(Long id){
@@ -45,5 +49,14 @@ public class EmployeeRepository extends AbstractRepository {
         EntityManager em = getEntityManager();
         TypedQuery<EmployeeEntity> typedQuery = em.createQuery("select employee from EmployeeEntity employee ", EmployeeEntity.class);
         return typedQuery.getResultList();
+    }
+
+    public void delete(Long employeeId){
+        EntityManager em = getEntityManager();
+        EmployeeEntity employeeEntity = em.find(EmployeeEntity.class, employeeId);
+        if(employeeEntity == null){
+            throw new EntityNotFoundException("Employee not found");
+        }
+        employeeEntity.setDeleted(true);
     }
 }
